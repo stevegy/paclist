@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 
 // Routes
-const proxyPACRouters = require('./routes/proxyPAC');
+const proxyPACRouters = require('./routers/proxyPAC');
 app.use('/proxy', proxyPACRouters);
 
 
