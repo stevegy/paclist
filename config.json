@@ -1,1 +1,16 @@
-{}
+{
+    "listUrl": "https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt",
+    "proxy": {
+        "protocol": "http",
+        "host": "192.168.3.28",
+        "port": 23205
+    },
+    "pacExpiry": 1440,
+    "exclude": [
+        "localhost",
+        "127.0.0.1"
+    ],
+    "predefined": [
+        "google.com"
+    ]
+}
