@@ -6,7 +6,7 @@ const hpagent = require('hpagent');
 const config = require('../config');
 let pac = {
   time: new Date().getTime(),
-  content: ''
+  content: '',
 };
 
 router.get('/pac', async (req, res) => {
@@ -14,8 +14,8 @@ router.get('/pac', async (req, res) => {
     // if the GFW list on the disk file is available and the timestamp is not expired.
     // get the GFW list from the disk file
     // else get it from the configured URL and save it to disk file and set the expiry time
-    if (pac.content === '' || 
-        pac.time < new Date().getTime() - config.pacExpiry * 60 * 1000) {
+    if (pac.content === '' ||
+      pac.time < new Date().getTime() - config.pacExpiry * 60 * 1000) {
       console.log(`${new Date().toISOString()} Fetching proxy list from ${config.listUrl}...`);
       pac.time = new Date().getTime();
       pac.content = await getPacContent();
@@ -28,13 +28,24 @@ router.get('/pac', async (req, res) => {
     console.log(`Proxy auto-config file generated at ${new Date().toISOString()}`);
   } catch (e) {
     console.error(e);
-    res.status(e.response?.status || 500).send(
-      e.response?.statusText || 'Internal Server Error');
+    if (pac.content !== '') {
+      res.status(200);
+      res.setHeader('Content-Type', 'application/x-ns-proxy-autoconfig');
+      res.send(pac.content);
+      console.log(`Error occurred, using cached proxy auto-config file at ${new Date().toISOString()}`);
+    } else {
+      res.status(e.response?.status || 500).send(
+        e.response?.statusText || 'Internal Server Error');
+    }
   }
 });
 
 async function getPacContent() {
-  const rawData = Buffer.from(await getProxyList(), 'base64').toString('utf-8');
+  const pacBase64 = await getProxyList();
+  if (pac.status !== 200) {
+    throw new Error(`Failed to generate PAC file, status code: ${pac.status}`);
+  }
+  const rawData = Buffer.from(pacBase64, 'base64').toString('utf-8');
   const rawList = rawData.split('\n');
   const pacList = [].concat(config.predefined);
   for (const item of rawList) {
@@ -69,6 +80,10 @@ async function getProxyList() {
   });
   const response = await axios.get(config.listUrl,
     { httpsAgent: httpsProxyAgent });
+  pac.status = response.status;
+  if (response.status !== 200) {
+    throw new Error(`Failed to fetch proxy list from ${config.listUrl}, status code: ${response.status}`);
+  }
   return response.data;
 }
 
