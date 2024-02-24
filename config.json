@@ -1,4 +1,5 @@
 {
+    "srvport": 3000,
     "listUrl": "https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt",
     "proxy": {
         "protocol": "http",
