@@ -7,7 +7,7 @@ The current config.json is as follows:
 ```
 {
     "srvport": 3000,
-    "listUrl": "https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt",
+    "listUrl": "https://raw.xxxxxxx.com/list/list/master/list.txt",
     "proxy": {
         "protocol": "http",
         "host": "192.168.3.28",
