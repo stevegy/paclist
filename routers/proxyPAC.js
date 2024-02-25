@@ -11,9 +11,9 @@ let pac = {
 
 router.get('/pac', async (req, res) => {
   try {
-    // if the GFW list on the disk file is available and the timestamp is not expired.
-    // get the GFW list from the disk file
-    // else get it from the configured URL and save it to disk file and set the expiry time
+    // if the GFW list in the pac cache is available and the timestamp is not expired,
+    // get the GFW list from the cache.
+    // else get it from the configured URL and save it to cache and set the expiry time
     if (pac.content === '' ||
       pac.time < new Date().getTime() - config.pacExpiry * 60 * 1000) {
       console.log(`${new Date().toISOString()} Fetching proxy list from ${config.listUrl}...`);
@@ -21,17 +21,12 @@ router.get('/pac', async (req, res) => {
       pac.content = await getPacContent();
     }
 
-    res.status(200);
-    res.setHeader('Content-Type', 'application/x-ns-proxy-autoconfig');
-    // res.setHeader('Content-Type', 'text/plain');
-    res.send(pac.content);
+    sendPacResponse(res);
     console.log(`Proxy auto-config file generated at ${new Date().toISOString()}`);
   } catch (e) {
     console.error(e);
     if (pac.content !== '') {
-      res.status(200);
-      res.setHeader('Content-Type', 'application/x-ns-proxy-autoconfig');
-      res.send(pac.content);
+      sendPacResponse(res);
       console.log(`Error occurred, using cached proxy auto-config file at ${new Date().toISOString()}`);
     } else {
       res.status(e.response?.status || 500).send(
@@ -39,6 +34,13 @@ router.get('/pac', async (req, res) => {
     }
   }
 });
+
+function sendPacResponse(res) {
+  res.status(200);
+  res.setHeader('Content-Type', 'application/x-ns-proxy-autoconfig');
+  // res.setHeader('Content-Type', 'text/plain');
+  res.send(pac.content);
+}
 
 async function getPacContent() {
   const pacBase64 = await getProxyList();

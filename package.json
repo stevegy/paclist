@@ -4,8 +4,7 @@
   "description": "get the refresh gfw list from the internet and generate the pac response",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "npx jest"
+    "start": "node index.js"
   },
   "author": "steve.yao",
   "license": "ISC",
